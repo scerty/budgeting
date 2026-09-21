@@ -1,0 +1,391 @@
+<main class="dashboard-shell">
+  <header class="topbar">
+    <div class="brand-lockup">
+      <span class="brand-mark">FA</span>
+      <div>
+        <p class="eyebrow">Finance analytics</p>
+        <h1>Operations cockpit</h1>
+      </div>
+    </div>
+    <div class="pipeline-status"><span></span> Live from Cube.js</div>
+  </header>
+
+  <section class="intro-row">
+    <div>
+      <p class="eyebrow">Gold layer / planning</p>
+      <h2>Plan, compare, adjust</h2>
+      <p class="intro-copy">A working view of approved budgets, actual spend, and published scenarios.</p>
+    </div>
+    <button class="refresh-button" type="button" (click)="loadDashboard()" [disabled]="isLoading()">
+      <span class="refresh-icon">&#8635;</span>
+      {{ isLoading() ? 'Refreshing...' : 'Refresh data' }}
+    </button>
+  </section>
+
+  <section class="context-bar" aria-label="Planning context">
+    <div class="context-heading">
+      <p class="eyebrow">Report context</p>
+      <strong>Planning scope</strong>
+      <span>Budget and planning follow the full selection; expense lenses follow branch.</span>
+    </div>
+    <label class="context-field">
+      <span>Organization</span>
+      <select [value]="selectedOrganization()" (change)="selectOrganization($any($event.target).value)">
+        @for (option of organizationOptions(); track option.code) {
+          <option [value]="option.code">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+    <label class="context-field">
+      <span>Fiscal period</span>
+      <select [value]="selectedPeriod()" (change)="selectPeriod($any($event.target).value)">
+        @for (option of periodOptions(); track option.code) {
+          <option [value]="option.code">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+    <label class="context-field">
+      <span>Scenario version</span>
+      <select [value]="selectedScenarioVersion()" (change)="selectScenarioVersion($any($event.target).value)">
+        @for (option of scenarioVersionOptions(); track option.code) {
+          <option [value]="option.code">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+    <label class="context-field">
+      <span>Branch</span>
+      <select [value]="selectedBranch()" (change)="selectBranch($any($event.target).value)">
+        @for (option of branchOptions(); track option.code) {
+          <option [value]="option.code">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+  </section>
+
+  @if (errorMessage()) {
+    <section class="notice error-notice">{{ errorMessage() }}</section>
+  }
+
+  <section class="metric-grid" aria-label="Financial summary">
+    <article class="metric-card metric-card-primary">
+      <p class="metric-label">Approved budget</p>
+      <p class="metric-value">{{ totalBudget() | number:'1.0-0' }} <span>USD</span></p>
+      <p class="metric-note">Approved and closed budget lines</p>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Actual spend</p>
+      <p class="metric-value">{{ totalActual() | number:'1.0-0' }} <span>USD</span></p>
+      <p class="metric-note">Actual expense facts in fiscal periods</p>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Budget variance</p>
+      <p class="metric-value">{{ totalVariance() | number:'1.0-0' }} <span>USD</span></p>
+      <p class="metric-note">Actual minus approved budget</p>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Published planning</p>
+      <p class="metric-value">{{ totalPlanned() | number:'1.0-0' }} <span>USD</span></p>
+      <p class="metric-note">Successful calculation runs only</p>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel branch-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Branch lens</p>
+          <h3>Spend by branch</h3>
+        </div>
+        <span class="panel-tag">{{ selectedBranch() === 'all' ? 'All branches' : 'Filtered scope' }}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Branch</th>
+              <th>City</th>
+              <th>Events</th>
+              <th class="number-cell">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of branchRows(); track row['ExpensesByBranch.branchCode']) {
+              <tr>
+                <td>
+                  <strong>{{ row['ExpensesByBranch.branchCode'] }}</strong>
+                  <span class="muted-detail">{{ row['ExpensesByBranch.branchName'] }}</span>
+                </td>
+                <td>{{ row['ExpensesByBranch.city'] }}</td>
+                <td>{{ asNumber(row['ExpensesByBranch.expenseCount']) }}</td>
+                <td class="number-cell amount">{{ asNumber(row['ExpensesByBranch.totalExpenses']) | number:'1.0-0' }} USD</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="empty-cell">No branch data available.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel month-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Calendar lens</p>
+          <h3>Monthly movement</h3>
+        </div>
+        <span class="panel-tag">{{ selectedBranch() === 'all' ? 'All branches' : 'Filtered scope' }}</span>
+      </div>
+      <div class="month-list">
+        @for (row of monthRows(); track row['ExpensesByBranchMonth.monthKey']) {
+          <div class="month-row">
+            <div class="month-meta">
+              <strong>{{ row['ExpensesByBranchMonth.monthName'] }}</strong>
+              <span>{{ row['ExpensesByBranchMonth.year'] }} · {{ row['ExpensesByBranchMonth.expenseCount'] }} events</span>
+            </div>
+            <div class="month-bar-track"><span [style.width]="barWidth(row['ExpensesByBranchMonth.totalExpenses'])"></span></div>
+            <strong class="month-total">{{ asNumber(row['ExpensesByBranchMonth.totalExpenses']) | number:'1.0-0' }}</strong>
+          </div>
+        } @empty {
+          <p class="empty-cell">No monthly data available.</p>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="planning-grid">
+    <article class="panel planning-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Control view</p>
+          <h3>Budget vs actual</h3>
+        </div>
+        <span class="panel-tag">Fiscal period</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Account</th>
+              <th>Branch</th>
+              <th>Department</th>
+              <th>Currency</th>
+              <th class="number-cell">Budget</th>
+              <th class="number-cell">Actual</th>
+              <th class="number-cell">Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of budgetRows(); track row['BudgetVsActual.fiscalPeriodCode'] + row['BudgetVsActual.groupAccountCode'] + row['BudgetVsActual.branchCode'] + row['BudgetVsActual.departmentCode'] + row['BudgetVsActual.currencyCode']) {
+              <tr>
+                <td>
+                  <strong>{{ row['BudgetVsActual.fiscalPeriodName'] }}</strong>
+                  <span class="muted-detail">{{ row['BudgetVsActual.fiscalPeriodCode'] }} · {{ row['BudgetVsActual.fiscalYear'] }}</span>
+                </td>
+                <td>
+                  <strong>{{ row['BudgetVsActual.groupAccountCode'] }}</strong>
+                  <span class="muted-detail">{{ row['BudgetVsActual.groupAccountName'] }}</span>
+                </td>
+                <td>{{ row['BudgetVsActual.branchName'] || 'Central' }}</td>
+                <td>{{ row['BudgetVsActual.departmentCode'] || 'Central' }}</td>
+                <td>{{ row['BudgetVsActual.currencyCode'] }}</td>
+                <td class="number-cell">{{ asNumber(row['BudgetVsActual.budgetAmount']) | number:'1.0-0' }}</td>
+                <td class="number-cell">{{ asNumber(row['BudgetVsActual.actualAmount']) | number:'1.0-0' }}</td>
+                <td class="number-cell amount">{{ asNumber(row['BudgetVsActual.varianceAmount']) | number:'1.0-0' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="8" class="empty-cell">No approved budget comparison available.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel planning-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Scenario output</p>
+          <h3>Published planning</h3>
+        </div>
+        <span class="panel-tag">Succeeded runs</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Period</th>
+              <th>Account</th>
+              <th class="number-cell">Facts</th>
+              <th class="number-cell">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of planningRows(); track row['Planning.scenarioVersionCode'] + row['Planning.fiscalPeriodCode'] + row['Planning.groupAccountCode'] + row['Planning.branchCode'] + row['Planning.departmentCode'] + row['Planning.currencyCode']) {
+              <tr>
+                <td>
+                  <strong>{{ row['Planning.scenarioCode'] }}</strong>
+                  <span class="muted-detail">{{ row['Planning.scenarioVersionName'] }}</span>
+                </td>
+                <td>
+                  <strong>{{ row['Planning.fiscalPeriodName'] }}</strong>
+                  <span class="muted-detail">{{ row['Planning.fiscalPeriodCode'] }} · {{ row['Planning.fiscalYear'] }}</span>
+                </td>
+                <td>
+                  <strong>{{ row['Planning.groupAccountCode'] }}</strong>
+                  <span class="muted-detail">{{ row['Planning.branchName'] || 'Central' }} · {{ row['Planning.departmentCode'] || 'Central' }}</span>
+                </td>
+                <td class="number-cell">{{ asNumber(row['Planning.planningFactCount']) }}</td>
+                <td class="number-cell amount">{{ asNumber(row['Planning.plannedAmount']) | number:'1.0-0' }} {{ row['Planning.currencyCode'] }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty-cell">No successful planning runs available.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="planning-grid monthly-comparison-grid">
+    <article class="panel planning-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Monthly control view</p>
+          <h3>Budget vs actual by group</h3>
+        </div>
+        <span class="panel-tag">Equal monthly allocation</span>
+      </div>
+      <div class="dimension-filter-bar" aria-label="Group comparison filters">
+        <label class="dimension-field">
+          <span>Group account</span>
+          <select [value]="selectedMonthlyGroupAccount()" (change)="selectMonthlyGroupAccount($any($event.target).value)">
+            @for (option of monthlyGroupAccountOptions(); track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        <label class="dimension-field">
+          <span>Legal entity</span>
+          <select [value]="selectedMonthlyLegalEntity()" (change)="selectMonthlyLegalEntity($any($event.target).value)">
+            @for (option of monthlyLegalEntityOptions(); track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        <label class="dimension-field">
+          <span>Department</span>
+          <select [value]="selectedMonthlyDepartment()" (change)="selectMonthlyDepartment($any($event.target).value)">
+            @for (option of monthlyDepartmentOptions(); track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        <label class="dimension-field">
+          <span>Currency</span>
+          <select [value]="selectedMonthlyCurrency()" (change)="selectMonthlyCurrency($any($event.target).value)">
+            @for (option of monthlyCurrencyOptions(); track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        <button class="filter-reset" type="button" (click)="resetMonthlyFilters()">Reset</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+                <th>Group account / dimensions</th>
+                <th>Month</th>
+              <th>Currency</th>
+              <th class="number-cell">Budget</th>
+              <th class="number-cell">Actual</th>
+              <th class="number-cell">Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (section of monthlyGroupSections(); track section.key) {
+              <tr>
+                <td>
+                  <strong>{{ section.groupAccountCode }}</strong>
+                  <span class="muted-detail">{{ section.groupAccountName }}</span>
+                  <span class="dimension-detail">{{ section.organizationCode }} · {{ section.fiscalPeriodCode }} · {{ section.fiscalYear }}</span>
+                  <span class="dimension-detail">{{ section.legalEntityCode || 'Unassigned entity' }} · {{ section.branchCode || 'Unassigned branch' }} · {{ section.departmentCode || 'Unassigned department' }}</span>
+                </td>
+                <td><strong>Account total</strong></td>
+                <td>{{ section.currencyCode }}</td>
+                <td class="number-cell">{{ section.budgetAmount | number:'1.0-0' }}</td>
+                <td class="number-cell">{{ section.actualAmount | number:'1.0-0' }}</td>
+                <td class="number-cell amount">{{ section.varianceAmount | number:'1.0-0' }}</td>
+              </tr>
+              @for (row of section.rows; track row['BudgetVsActualMonth.monthKey'] + row['BudgetVsActualMonth.groupAccountCode'] + row['BudgetVsActualMonth.legalEntityCode'] + row['BudgetVsActualMonth.branchCode'] + row['BudgetVsActualMonth.departmentCode'] + row['BudgetVsActualMonth.currencyCode']) {
+                <tr class="monthly-detail-row">
+                  <td><span class="monthly-detail-label">Monthly detail</span></td>
+                  <td>
+                    <strong>{{ row['BudgetVsActualMonth.monthName'] }}</strong>
+                    <span class="muted-detail">{{ row['BudgetVsActualMonth.monthYear'] }}</span>
+                  </td>
+                  <td>{{ row['BudgetVsActualMonth.currencyCode'] }}</td>
+                  <td class="number-cell">{{ asNumber(row['BudgetVsActualMonth.budgetAmount']) | number:'1.0-0' }}</td>
+                  <td class="number-cell">{{ asNumber(row['BudgetVsActualMonth.actualAmount']) | number:'1.0-0' }}</td>
+                  <td class="number-cell amount">{{ asNumber(row['BudgetVsActualMonth.varianceAmount']) | number:'1.0-0' }}</td>
+                </tr>
+              }
+            } @empty {
+              <tr><td colspan="6" class="empty-cell">No monthly group comparison available.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel planning-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Monthly operating view</p>
+          <h3>Budget vs actual by branch</h3>
+        </div>
+        <span class="panel-tag">Equal monthly allocation</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Branch</th>
+              <th>Currency</th>
+              <th class="number-cell">Budget</th>
+              <th class="number-cell">Actual</th>
+              <th class="number-cell">Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of monthlyBranchRows(); track row['BudgetVsActualMonth.monthKey'] + row['BudgetVsActualMonth.branchCode'] + row['BudgetVsActualMonth.currencyCode']) {
+              <tr>
+                <td>
+                  <strong>{{ row['BudgetVsActualMonth.monthName'] }}</strong>
+                  <span class="muted-detail">{{ row['BudgetVsActualMonth.monthYear'] }}</span>
+                </td>
+                <td>
+                  <strong>{{ row['BudgetVsActualMonth.branchCode'] || 'Central' }}</strong>
+                  <span class="muted-detail">{{ row['BudgetVsActualMonth.branchName'] || 'Central' }}</span>
+                </td>
+                <td>{{ row['BudgetVsActualMonth.currencyCode'] }}</td>
+                <td class="number-cell">{{ asNumber(row['BudgetVsActualMonth.budgetAmount']) | number:'1.0-0' }}</td>
+                <td class="number-cell">{{ asNumber(row['BudgetVsActualMonth.actualAmount']) | number:'1.0-0' }}</td>
+                <td class="number-cell amount">{{ asNumber(row['BudgetVsActualMonth.varianceAmount']) | number:'1.0-0' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="empty-cell">No monthly branch comparison available.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <footer class="footer-note">
+    <span>Source: dbt Gold marts in PostgreSQL</span>
+    <span>Semantic layer: Cube.js</span>
+  </footer>
+</main>

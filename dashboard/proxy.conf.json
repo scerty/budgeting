@@ -1,0 +1,8 @@
+{
+  "/cubejs-api/**": {
+    "target": "http://cube:4000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

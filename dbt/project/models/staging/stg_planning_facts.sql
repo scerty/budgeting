@@ -1,0 +1,22 @@
+select
+    id as planning_fact_id,
+    calculation_run_id,
+    scenario_version_id,
+    fiscal_period_id,
+    legal_entity_id,
+    group_account_id,
+    entity_account_id,
+    branch_id,
+    department_id,
+    cost_center_id,
+    profit_center_id,
+    business_unit_id,
+    project_id,
+    source_kind,
+    source_rule_id as source_calculation_rule_id,
+    amount,
+    currency_id,
+    lineage,
+    created_at,
+    updated_at
+from {{ source('postgres_app', 'finance_planningfact') }}

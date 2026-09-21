@@ -1,0 +1,21 @@
+select
+    id as group_account_id,
+    organization_id,
+    code as group_account_code,
+    name as group_account_name,
+    localized_name,
+    account_type,
+    normal_balance,
+    parent_id as parent_group_account_id,
+    level as account_level,
+    is_posting_allowed,
+    is_control_account,
+    requires_cost_center,
+    requires_project,
+    requires_intercompany,
+    valid_from,
+    valid_to,
+    is_active,
+    created_at,
+    updated_at
+from {{ source('postgres_app', 'finance_groupaccount') }}

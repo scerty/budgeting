@@ -1,0 +1,220 @@
+version: 2
+
+models:
+  - name: dim_branch
+    description: Branch dimension
+    columns:
+      - name: branch_id
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_department
+    description: Department dimension
+    columns:
+      - name: department_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: branch_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_branch')
+                field: branch_id
+
+  - name: fact_expenses
+    description: One row per expense event
+    columns:
+      - name: expense_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: department_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_department')
+                field: department_id
+
+      - name: branch_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_branch')
+                field: branch_id
+
+      - name: amount
+        data_tests:
+          - not_null
+
+      - name: currency_code
+        data_tests:
+          - not_null
+
+      - name: expense_date
+        data_tests:
+          - not_null
+
+      - name: created_at
+        data_tests:
+          - not_null
+
+      - name: updated_at
+        data_tests:
+          - not_null
+
+      - name: date_key
+        description: "Foreign key to dim_date"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+  - name: fact_journal_lines
+    description: One row per active general ledger journal line
+    columns:
+      - name: journal_line_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_record_id
+        data_tests:
+          - not_null
+
+      - name: source_line_id
+        data_tests:
+          - not_null
+
+      - name: posting_date
+        data_tests:
+          - not_null
+
+      - name: source_account_code
+        data_tests:
+          - not_null
+
+      - name: currency_code
+        data_tests:
+          - not_null
+
+      - name: debit_amount
+        data_tests:
+          - not_null
+
+      - name: credit_amount
+        data_tests:
+          - not_null
+
+      - name: signed_amount
+        data_tests:
+          - not_null
+
+      - name: date_key
+        description: Foreign key to dim_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+
+  - name: dim_date
+    description: "Date dimension for expense analysis"
+    columns:
+      - name: date_key
+        description: "Date key in YYYYMMDD format"
+        data_tests:
+          - not_null
+          - unique
+
+  - name: expenses_by_branch
+    description: "Expense totals and counts by branch"
+    columns:
+      - name: branch_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_branch')
+                field: branch_id
+
+      - name: branch_code
+        data_tests:
+          - not_null
+
+      - name: expense_count
+        data_tests:
+          - not_null
+
+      - name: total_expenses
+        data_tests:
+          - not_null
+
+  - name: expenses_by_month
+    description: "Expense totals and counts by calendar month"
+    columns:
+      - name: month_key
+        description: "Month key in YYYYMM format"
+        data_tests:
+          - not_null
+          - unique
+
+      - name: year
+        data_tests:
+          - not_null
+
+      - name: month_number
+        data_tests:
+          - not_null
+
+      - name: expense_count
+        data_tests:
+          - not_null
+
+      - name: total_expenses
+        data_tests:
+          - not_null
+
+  - name: expenses_by_branch_month
+    description: "Expense totals and counts at the branch-month grain"
+    columns:
+      - name: branch_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_branch')
+                field: branch_id
+
+      - name: branch_code
+        data_tests:
+          - not_null
+
+      - name: month_key
+        description: "Month key in YYYYMM format"
+        data_tests:
+          - not_null
+
+      - name: year
+        data_tests:
+          - not_null
+
+      - name: month_number
+        data_tests:
+          - not_null
+
+      - name: expense_count
+        data_tests:
+          - not_null
+
+      - name: total_expenses
+        data_tests:
+          - not_null

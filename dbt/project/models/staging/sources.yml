@@ -1,0 +1,257 @@
+version: 2
+
+sources:
+  - name: postgres_app
+    schema: public
+    description: Operational tables loaded by Django in PostgreSQL
+
+    tables:
+      - name: finance_organization
+        description: Organization and tenant master records from Django
+
+      - name: finance_country
+        description: Country and tax jurisdiction master records
+
+      - name: finance_currency
+        description: Currency master records
+
+      - name: finance_fiscalcalendar
+        description: Fiscal calendar definitions
+
+      - name: finance_fiscalperiod
+        description: Fiscal periods
+
+      - name: finance_legalentity
+        description: Legal entity master records
+
+      - name: finance_ownershipperiod
+        description: Effective ownership periods
+
+      - name: finance_businessunit
+        description: Business unit master records
+
+      - name: finance_entitybusinessunitassignment
+        description: Business unit to legal entity assignments
+
+      - name: finance_branch
+        description: Branch records from Django
+
+      - name: finance_department
+        description: Department records from Django
+
+      - name: finance_departmententityassignment
+        description: Department to legal entity assignments
+
+      - name: finance_departmentbranchassignment
+        description: Department to branch assignments
+
+      - name: finance_costcenter
+        description: Cost center master records
+
+      - name: finance_profitcenter
+        description: Profit center master records
+
+      - name: finance_project
+        description: Project master records
+
+      - name: finance_groupaccount
+        description: Group chart of accounts
+
+      - name: finance_entityaccount
+        description: Legal entity local chart of accounts
+
+      - name: finance_mappingversion
+        description: Account mapping versions
+
+      - name: finance_accountmapping
+        description: Local to group account mappings
+
+      - name: finance_accounthierarchy
+        description: Versioned parallel account reporting hierarchies
+
+      - name: finance_accounthierarchynode
+        description: Account hierarchy rollup nodes
+
+      - name: finance_reportgroup
+        description: Organization-scoped report template folders
+
+      - name: finance_reporttemplate
+        description: Reusable report definitions backed by account hierarchies
+
+      - name: finance_reportcolumnmodel
+        description: Reusable report column layout definitions
+
+      - name: finance_reportcolumnmodelitem
+        description: Generated column rules for reusable report layouts
+
+      - name: finance_reportcolumn
+        description: Actuals, scenario, mixed, and variance columns in a report template
+
+      - name: finance_reportrunsnapshot
+        description: Frozen rendered report output and source metadata
+
+      - name: finance_budgetplan
+        description: Budget plan headers
+
+      - name: finance_budgetversion
+        description: Budget and forecast versions, optionally linked to a scenario version
+
+      - name: finance_budgetline
+        description: Budget line records
+
+      - name: finance_scenario
+        description: First-class planning scenario definitions
+
+      - name: finance_scenarioversion
+        description: Versioned and lockable planning scenario snapshots
+
+      - name: finance_scenarioblend
+        description: Period-range components that blend actuals and planning scenarios
+
+      - name: finance_importsource
+        description: Configured external import sources
+
+      - name: finance_ingestionrun
+        description: Import run and batch audit records
+
+      - name: finance_ingestionissue
+        description: Row-level import warnings and errors
+
+      - name: finance_newcodediscovery
+        description: Source codes not yet resolved to master data
+
+      - name: finance_rawexpense
+        description: Raw imported expense records
+
+      - name: finance_expense
+        description: Expense records from Django
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 72, period: hour}
+        loaded_at_field: updated_at
+
+      - name: finance_rawjournalline
+        description: Raw imported general ledger journal lines
+
+      - name: finance_exchangerate
+        description: Exchange rates by date and rate type
+
+      - name: finance_taxcode
+        description: Tax code master records
+
+      - name: finance_taxrate
+        description: Effective tax rates
+
+      - name: finance_supplier
+        description: Supplier master records
+
+      - name: finance_customer
+        description: Customer master records
+
+      - name: finance_invoice
+        description: Accounts payable and receivable invoice headers
+
+      - name: finance_invoiceline
+        description: Invoice line records
+
+      - name: finance_payment
+        description: Payment records
+
+      - name: finance_paymentallocation
+        description: Payment to invoice allocations
+
+      - name: finance_planningassumption
+        description: Planning assumptions
+
+      - name: finance_planningdriver
+        description: Planning drivers
+
+      - name: finance_drivervalue
+        description: Global or scenario-scoped driver values by fiscal scope
+
+      - name: finance_calculationrule
+        description: Typed, prioritized, optionally scenario-scoped planning rules
+
+      - name: finance_calculationruledependency
+        description: Directed dependencies between planning calculation rules
+
+      - name: finance_calculationrun
+        description: Calculation execution runs and input lineage metadata
+
+      - name: finance_planningfact
+        description: Scenario calculation output at the explicit planning fact grain
+
+      - name: finance_allocationrule
+        description: Allocation rule headers
+
+      - name: finance_allocationruleline
+        description: Allocation rule targets and percentages
+
+      - name: finance_encumbrance
+        description: Open and converted budget commitments
+
+      - name: finance_workflowdefinition
+        description: Approval workflow definitions
+
+      - name: finance_workflowstep
+        description: Approval workflow steps
+
+      - name: finance_approvalrequest
+        description: Approval requests
+
+      - name: finance_approvalaction
+        description: Approval actions
+
+      - name: finance_planningsubmission
+        description: Scenario submission and approval scope by legal entity or operating dimension
+
+      - name: finance_auditlog
+        description: Audit log records
+
+      - name: finance_journalentry
+        description: Operational journal entry headers
+
+      - name: finance_journalentryline
+        description: Operational double-entry journal lines
+
+      - name: finance_consolidationgroup
+        description: Consolidation group definitions
+
+      - name: finance_consolidationscope
+        description: Legal entities included in consolidation groups
+
+      - name: finance_intercompanypair
+        description: Expected intercompany entity pairs
+
+      - name: finance_eliminationrule
+        description: Intercompany elimination rules
+
+      - name: finance_consolidationrun
+        description: Actuals and planning consolidation runs
+
+      - name: finance_eliminationentry
+        description: Generated consolidation elimination entries
+
+      - name: finance_minorityinterestentry
+        description: Non-controlling interest adjustments
+
+      - name: finance_translationadjustment
+        description: Foreign currency translation adjustments
+
+      - name: finance_goodwillcalculation
+        description: Acquisition goodwill calculations
+
+      - name: finance_intercompanyinventoryelimination
+        description: Unrealised intercompany inventory profit eliminations
+
+      - name: finance_intercompanymatch
+        description: Intercompany reconciliation results
+
+      - name: finance_role
+        description: Organization-scoped role definitions; authorization remains outside dbt
+
+      - name: finance_userprofile
+        description: User finance preferences; authorization remains outside dbt
+
+      - name: finance_userorgscope
+        description: User role scopes by organization and optional financial dimensions; not a reporting fact

@@ -1,0 +1,21 @@
+select
+    id as invoice_line_id,
+    invoice_id,
+    line_number,
+    description,
+    entity_account_id,
+    group_account_id,
+    branch_id,
+    department_id,
+    cost_center_id,
+    profit_center_id,
+    project_id,
+    tax_code_id,
+    quantity,
+    unit_price,
+    net_amount,
+    tax_amount,
+    gross_amount,
+    created_at,
+    updated_at
+from {{ source('postgres_app', 'finance_invoiceline') }}

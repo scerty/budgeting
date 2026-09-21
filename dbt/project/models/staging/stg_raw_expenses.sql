@@ -1,0 +1,23 @@
+select
+    id as raw_expense_id,
+    ingestion_run_id,
+    source_system,
+    source_entity,
+    source_record_id,
+    amount,
+    upper(trim(currency)) as currency_code,
+    expense_date,
+    description,
+    nullif(trim(source_account_code), '') as source_account_code,
+    nullif(trim(source_branch_code), '') as source_branch_code,
+    nullif(trim(source_department_code), '') as source_department_code,
+    nullif(trim(source_cost_center_code), '') as source_cost_center_code,
+    source_created_at,
+    source_updated_at,
+    ingested_at,
+    record_hash,
+    is_deleted,
+    source_payload,
+    created_at,
+    updated_at
+from {{ source('postgres_app', 'finance_rawexpense') }}

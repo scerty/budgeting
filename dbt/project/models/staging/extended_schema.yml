@@ -1,0 +1,179 @@
+version: 2
+
+models:
+  - name: stg_organizations
+    columns:
+      - name: organization_id
+        data_tests: [not_null, unique]
+  - name: stg_countries
+    columns:
+      - name: country_id
+        data_tests: [not_null, unique]
+  - name: stg_currencies
+    columns:
+      - name: currency_id
+        data_tests: [not_null, unique]
+  - name: stg_fiscal_calendars
+    columns:
+      - name: fiscal_calendar_id
+        data_tests: [not_null, unique]
+  - name: stg_fiscal_periods
+    columns:
+      - name: fiscal_period_id
+        data_tests: [not_null, unique]
+  - name: stg_legal_entities
+    columns:
+      - name: legal_entity_id
+        data_tests: [not_null, unique]
+  - name: stg_ownership_periods
+    columns:
+      - name: ownership_period_id
+        data_tests: [not_null, unique]
+  - name: stg_business_units
+    columns:
+      - name: business_unit_id
+        data_tests: [not_null, unique]
+  - name: stg_entity_business_unit_assignments
+    columns:
+      - name: entity_business_unit_assignment_id
+        data_tests: [not_null, unique]
+  - name: stg_department_entity_assignments
+    columns:
+      - name: department_entity_assignment_id
+        data_tests: [not_null, unique]
+  - name: stg_department_branch_assignments
+    columns:
+      - name: department_branch_assignment_id
+        data_tests: [not_null, unique]
+  - name: stg_cost_centers
+    columns:
+      - name: cost_center_id
+        data_tests: [not_null, unique]
+  - name: stg_profit_centers
+    columns:
+      - name: profit_center_id
+        data_tests: [not_null, unique]
+  - name: stg_projects
+    columns:
+      - name: project_id
+        data_tests: [not_null, unique]
+  - name: stg_group_accounts
+    columns:
+      - name: group_account_id
+        data_tests: [not_null, unique]
+  - name: stg_entity_accounts
+    columns:
+      - name: entity_account_id
+        data_tests: [not_null, unique]
+  - name: stg_mapping_versions
+    columns:
+      - name: mapping_version_id
+        data_tests: [not_null, unique]
+  - name: stg_account_mappings
+    columns:
+      - name: account_mapping_id
+        data_tests: [not_null, unique]
+  - name: stg_raw_expenses
+    columns:
+      - name: raw_expense_id
+        data_tests: [not_null, unique]
+  - name: stg_budget_plans
+    columns:
+      - name: budget_plan_id
+        data_tests: [not_null, unique]
+  - name: stg_budget_versions
+    columns:
+      - name: budget_version_id
+        data_tests: [not_null, unique]
+  - name: stg_budget_lines
+    columns:
+      - name: budget_line_id
+        data_tests: [not_null, unique]
+  - name: stg_scenarios
+    columns:
+      - name: scenario_id
+        data_tests: [not_null, unique]
+  - name: stg_scenario_versions
+    columns:
+      - name: scenario_version_id
+        data_tests: [not_null, unique]
+  - name: stg_scenario_blends
+    columns:
+      - name: scenario_blend_id
+        data_tests: [not_null, unique]
+  - name: stg_exchange_rates
+    columns:
+      - name: exchange_rate_id
+        data_tests: [not_null, unique]
+  - name: stg_tax_codes
+    columns:
+      - name: tax_code_id
+        data_tests: [not_null, unique]
+  - name: stg_tax_rates
+    columns:
+      - name: tax_rate_id
+        data_tests: [not_null, unique]
+  - name: stg_suppliers
+    columns:
+      - name: supplier_id
+        data_tests: [not_null, unique]
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests: [not_null, unique]
+  - name: stg_invoices
+    columns:
+      - name: invoice_id
+        data_tests: [not_null, unique]
+  - name: stg_invoice_lines
+    columns:
+      - name: invoice_line_id
+        data_tests: [not_null, unique]
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        data_tests: [not_null, unique]
+  - name: stg_payment_allocations
+    columns:
+      - name: payment_allocation_id
+        data_tests: [not_null, unique]
+  - name: stg_planning_assumptions
+    columns:
+      - name: planning_assumption_id
+        data_tests: [not_null, unique]
+  - name: stg_planning_drivers
+    columns:
+      - name: planning_driver_id
+        data_tests: [not_null, unique]
+  - name: stg_driver_values
+    columns:
+      - name: driver_value_id
+        data_tests: [not_null, unique]
+  - name: stg_calculation_rules
+    columns:
+      - name: calculation_rule_id
+        data_tests: [not_null, unique]
+  - name: stg_calculation_rule_dependencies
+    columns:
+      - name: calculation_rule_dependency_id
+        data_tests: [not_null, unique]
+  - name: stg_calculation_runs
+    columns:
+      - name: calculation_run_id
+        data_tests: [not_null, unique]
+  - name: stg_planning_facts
+    columns:
+      - name: planning_fact_id
+        data_tests: [not_null, unique]
+  - name: stg_allocation_rules
+    columns:
+      - name: allocation_rule_id
+        data_tests: [not_null, unique]
+  - name: stg_allocation_rule_lines
+    columns:
+      - name: allocation_rule_line_id
+        data_tests: [not_null, unique]
+  - name: stg_encumbrances
+    columns:
+      - name: encumbrance_id
+        data_tests: [not_null, unique]

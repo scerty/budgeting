@@ -1,0 +1,19 @@
+# Local environment files are intentionally committed for this development stack.
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# dbt generated artifacts and logs
+dbt/project/target/
+dbt/project/logs/
+
+# Node dependencies and build output
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.angular/
+
+# Editor and OS files
+.DS_Store
+.vscode/

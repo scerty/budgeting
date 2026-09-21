@@ -1,0 +1,23 @@
+select
+    id as invoice_id,
+    organization_id,
+    legal_entity_id,
+    direction,
+    supplier_id,
+    customer_id,
+    invoice_number,
+    invoice_date,
+    due_date,
+    currency_id,
+    subtotal,
+    tax_amount,
+    total_amount,
+    status,
+    description,
+    source_system,
+    source_entity,
+    source_record_id,
+    record_hash,
+    created_at,
+    updated_at
+from {{ source('postgres_app', 'finance_invoice') }}

@@ -1,0 +1,118 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: finance-postgres-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data_postgres:/var/lib/postgresql/data
+    ports:
+      - "192.168.100.20:15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - finance_net_postgres
+
+  django:
+    build:
+      context: ./django
+    container_name: finance-django-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DJANGO_DEBUG: "1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./django:/app
+    ports:
+      - "18001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >-
+      sh -c "python manage.py makemigrations finance
+      && python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000"
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "shell", "-c", "from django.db import connection; connection.ensure_connection()"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - finance_net_postgres
+
+  dbt:
+    build:
+      context: ./dbt
+    container_name: finance-dbt-postgres
+    restart: "no"
+    env_file:
+      - .env
+    volumes:
+      - ./dbt/project:/workspace
+      - ./dbt/profiles:/root/.dbt:ro
+    working_dir: /workspace
+    command: ["dbt", "build", "--profiles-dir", "/root/.dbt", "--full-refresh"]
+    depends_on:
+      django:
+        condition: service_healthy
+    networks:
+      - finance_net_postgres
+
+  cube:
+    image: cubejs/cube:latest
+    container_name: finance-cube-postgres
+    restart: unless-stopped
+    environment:
+      CUBEJS_DEV_MODE: "true"
+      CUBEJS_API_SECRET: ${CUBEJS_API_SECRET:-finance-cube-local-secret-change-me}
+      CUBEJS_DB_TYPE: postgres
+      CUBEJS_DB_HOST: postgres
+      CUBEJS_DB_PORT: 5432
+      CUBEJS_DB_NAME: ${POSTGRES_DB}
+      CUBEJS_DB_USER: ${POSTGRES_USER}
+      CUBEJS_DB_PASS: ${POSTGRES_PASSWORD}
+      CUBEJS_DB_SCHEMA: analytics
+      CUBEJS_EXTERNAL_DEFAULT: "true"
+      CUBEJS_SCHEDULED_REFRESH_DEFAULT: "false"
+      CUBEJS_WEB_SOCKETS: "true"
+      CUBEJS_SCHEMA_PATH: /cube/conf/schema
+    volumes:
+      - ./cube/schema:/cube/conf/schema
+      - ./cube/cube.js:/cube/conf/cube.js:ro
+    ports:
+      - "14000:4000"
+      - "15433:15432"
+    depends_on:
+      dbt:
+        condition: service_completed_successfully
+    networks:
+      - finance_net_postgres
+
+  dashboard:
+    build:
+      context: ./dashboard
+    container_name: finance-dashboard-postgres
+    restart: unless-stopped
+    ports:
+      - "14200:4200"
+    depends_on:
+      cube:
+        condition: service_started
+    networks:
+      - finance_net_postgres
+
+volumes:
+  postgres_data_postgres:
+
+networks:
+  finance_net_postgres:
+    name: finance_net_postgres
