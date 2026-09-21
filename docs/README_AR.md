@@ -9,6 +9,7 @@
 3. [خريطة dbt](DOMAIN_TO_DBT_AR.md): كيف تتحول المصادر إلى أبعاد وfacts وmarts.
 4. [ملكية البيانات والتتبع](DATA_OWNERSHIP_AR.md): من يملك كل قرار ومتى تنتقل البيانات بين الطبقات.
 5. [ERPNext كمصدر تجريبي](ERPNext_DEMO_COMPOSE_AR.md): تشغيل المصدر الخارجي واختبار REST ومسار GL Entry.
+6. [مخطط علاقات البيانات](DATA_MODEL_DIAGRAM_AR.md): علاقات raw وstaging وintermediate وfacts وdimensions والـ marts.
 
 ## المعمارية
 
